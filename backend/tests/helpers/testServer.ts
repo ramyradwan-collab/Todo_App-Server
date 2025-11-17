@@ -70,7 +70,7 @@ export const createTestServer = (): Express => {
 
   app.post('/tasks', (req, res) => {
     try {
-      const { title } = req.body;
+      const { title, dueDate } = req.body;
 
       if (title === undefined || title === null || typeof title !== 'string') {
         addLog('info', 'POST /tasks - Invalid request: title missing or not a string');
@@ -100,18 +100,30 @@ export const createTestServer = (): Express => {
         });
       }
 
+      // Validate dueDate if provided
+      if (dueDate !== undefined && dueDate !== null) {
+        if (typeof dueDate !== 'number' || isNaN(dueDate)) {
+          addLog('info', 'POST /tasks - Invalid request: dueDate must be a valid number');
+          return res.status(400).json({ 
+            error: 'dueDate must be a valid timestamp (number)',
+            code: 'INVALID_DUE_DATE_TYPE'
+          });
+        }
+      }
+
       const tasks = loadTasks();
       const newTask: Task = {
         id: crypto.randomUUID(),
         title: trimmedTitle,
         completed: false,
         createdAt: Date.now(),
+        ...(dueDate && { dueDate }),
       };
 
       tasks.push(newTask);
       saveTasks(tasks);
 
-      addLog('info', `POST /tasks - Created task: "${trimmedTitle}" (ID: ${newTask.id})`);
+      addLog('info', `POST /tasks - Created task: "${trimmedTitle}" (ID: ${newTask.id})${dueDate ? ` with due date` : ''}`);
       res.status(201).json(newTask);
     } catch (error) {
       addLog('error', `POST /tasks - Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -122,7 +134,7 @@ export const createTestServer = (): Express => {
   app.put('/tasks/:id', (req, res) => {
     try {
       const { id } = req.params;
-      const { title, completed } = req.body;
+      const { title, completed, dueDate } = req.body;
 
       const tasks = loadTasks();
       const taskIndex = tasks.findIndex((task) => task.id === id);
@@ -161,6 +173,23 @@ export const createTestServer = (): Express => {
           });
         }
         task.title = trimmedTitle;
+      }
+
+      // Update dueDate if provided
+      if (dueDate !== undefined) {
+        if (dueDate === null) {
+          // Allow clearing dueDate by setting it to null
+          delete task.dueDate;
+        } else {
+          if (typeof dueDate !== 'number' || isNaN(dueDate)) {
+            addLog('info', `PUT /tasks/${id} - Invalid request: dueDate must be a valid number`);
+            return res.status(400).json({ 
+              error: 'dueDate must be a valid timestamp (number)',
+              code: 'INVALID_DUE_DATE_TYPE'
+            });
+          }
+          task.dueDate = dueDate;
+        }
       }
 
       if (completed !== undefined) {

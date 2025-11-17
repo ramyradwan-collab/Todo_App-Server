@@ -19,6 +19,178 @@
 
 *Report generated automatically after test run*
 
+## Backend API Tests
+
+### ✅ Passed Tests (24)
+
+1. **GET /health - should return { ok: true }**
+   - Duration: 8ms
+
+2. **GET /tasks - should return empty array when no tasks exist**
+   - Duration: 1ms
+
+3. **GET /tasks - should return all tasks sorted newest first**
+   - Duration: 2ms
+
+4. **GET /tasks - should return tasks with all required fields**
+   - Duration: 1ms
+
+5. **POST /tasks - should create a new task with valid title**
+   - Duration: 5ms
+
+6. **POST /tasks - should trim whitespace from task title**
+   - Duration: 1ms
+
+7. **POST /tasks - should reject empty title**
+   - Duration: 1ms
+
+8. **POST /tasks - should reject whitespace-only title**
+   - Duration: 1ms
+
+9. **POST /tasks - should reject very long title**
+   - Duration: 1ms
+
+10. **POST /tasks - should reject missing title field**
+   - Duration: 1ms
+
+11. **POST /tasks - should reject non-string title**
+   - Duration: 1ms
+
+12. **POST /tasks - should persist created task to data file**
+   - Duration: 1ms
+   - Suggestions:
+     - 💾 Verify test data isolation is working
+
+13. **PUT /tasks/:id - should toggle task completion status**
+   - Duration: 1ms
+
+14. **PUT /tasks/:id - should toggle from completed to active**
+   - Duration: 1ms
+
+15. **PUT /tasks/:id - should return 404 when task does not exist**
+   - Duration: 0ms
+
+16. **PUT /tasks/:id - should reject non-boolean completed value**
+   - Duration: 1ms
+
+17. **PUT /tasks/:id - should reject very long title on update**
+   - Duration: 1ms
+
+18. **PUT /tasks/:id - should persist completion status change**
+   - Duration: 1ms
+   - Suggestions:
+     - 💾 Verify test data isolation is working
+
+19. **DELETE /tasks/:id - should delete an existing task**
+   - Duration: 2ms
+
+20. **DELETE /tasks/:id - should return 404 when task does not exist**
+   - Duration: 0ms
+
+21. **DELETE /tasks/:id - should persist deletion to data file**
+   - Duration: 1ms
+   - Suggestions:
+     - 💾 Verify test data isolation is working
+
+22. **GET /stats - should return task statistics**
+   - Duration: 1ms
+
+23. **GET /stats - should return zero counts when no tasks exist**
+   - Duration: 0ms
+
+24. **Integration - should handle complete task lifecycle**
+   - Duration: 3ms
+
+
+## Backend API Tests
+
+
+## Backend API Tests
+
+### ✅ Passed Tests (24)
+
+1. **GET /health - should return { ok: true }**
+   - Duration: 8ms
+
+2. **GET /tasks - should return empty array when no tasks exist**
+   - Duration: 2ms
+
+3. **GET /tasks - should return all tasks sorted newest first**
+   - Duration: 1ms
+
+4. **GET /tasks - should return tasks with all required fields**
+   - Duration: 1ms
+
+5. **POST /tasks - should create a new task with valid title**
+   - Duration: 4ms
+
+6. **POST /tasks - should trim whitespace from task title**
+   - Duration: 1ms
+
+7. **POST /tasks - should reject empty title**
+   - Duration: 0ms
+
+8. **POST /tasks - should reject whitespace-only title**
+   - Duration: 1ms
+
+9. **POST /tasks - should reject very long title**
+   - Duration: 1ms
+
+10. **POST /tasks - should reject missing title field**
+   - Duration: 1ms
+
+11. **POST /tasks - should reject non-string title**
+   - Duration: 0ms
+
+12. **POST /tasks - should persist created task to data file**
+   - Duration: 1ms
+   - Suggestions:
+     - 💾 Verify test data isolation is working
+
+13. **PUT /tasks/:id - should toggle task completion status**
+   - Duration: 0ms
+
+14. **PUT /tasks/:id - should toggle from completed to active**
+   - Duration: 0ms
+
+15. **PUT /tasks/:id - should return 404 when task does not exist**
+   - Duration: 1ms
+
+16. **PUT /tasks/:id - should reject non-boolean completed value**
+   - Duration: 0ms
+
+17. **PUT /tasks/:id - should reject very long title on update**
+   - Duration: 0ms
+
+18. **PUT /tasks/:id - should persist completion status change**
+   - Duration: 1ms
+   - Suggestions:
+     - 💾 Verify test data isolation is working
+
+19. **DELETE /tasks/:id - should delete an existing task**
+   - Duration: 2ms
+
+20. **DELETE /tasks/:id - should return 404 when task does not exist**
+   - Duration: 0ms
+
+21. **DELETE /tasks/:id - should persist deletion to data file**
+   - Duration: 1ms
+   - Suggestions:
+     - 💾 Verify test data isolation is working
+
+22. **GET /stats - should return task statistics**
+   - Duration: 0ms
+
+23. **GET /stats - should return zero counts when no tasks exist**
+   - Duration: 0ms
+
+24. **Integration - should handle complete task lifecycle**
+   - Duration: 4ms
+
+
+## Backend API Tests
+
+
 ## Frontend E2E Tests
 
 ### ❌ Failed Tests (1)

@@ -9,7 +9,7 @@ interface TaskItemProps {
 }
 
 export const TaskItem = ({ task, onToggle, onDelete }: TaskItemProps) => {
-  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [, setCurrentTime] = useState(Date.now());
   const overdue = isOverdue(task.dueDate, task.completed);
   
   // Update time every minute to refresh remaining time display
@@ -17,7 +17,7 @@ export const TaskItem = ({ task, onToggle, onDelete }: TaskItemProps) => {
     if (!task.dueDate || task.completed) return;
     
     const interval = setInterval(() => {
-      setCurrentTime(Date.now());
+      setCurrentTime(Date.now()); // Force re-render to update remaining time
     }, 60000); // Update every minute
     
     return () => clearInterval(interval);
