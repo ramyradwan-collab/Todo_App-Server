@@ -5,6 +5,7 @@ import { TaskInput } from './components/TaskInput';
 import { TaskItem } from './components/TaskItem';
 import { FilterButtons } from './components/FilterButtons';
 import { HealthBanner } from './components/HealthBanner';
+import { CelebrationToast } from './components/CelebrationToast';
 import './App.css';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
   const [filter, setFilter] = useState<FilterType>('all');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   // Load tasks from API on mount
   useEffect(() => {
@@ -51,6 +53,11 @@ function App() {
       setTasks((prev) =>
         prev.map((t) => (t.id === id ? updatedTask : t))
       );
+
+      // Show celebration toast when task is marked as completed
+      if (!task.completed && updatedTask.completed) {
+        setShowCelebration(true);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update task');
     }
@@ -98,6 +105,7 @@ function App() {
   return (
     <div className="app" data-testid="app">
       <HealthBanner />
+      <CelebrationToast show={showCelebration} onClose={() => setShowCelebration(false)} />
       <div className="todo-card" data-testid="todo-card">
         <h1 className="todo-card__title" data-testid="app-title">Todo App</h1>
         {error && (

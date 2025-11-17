@@ -38,7 +38,7 @@ export const TaskItem = ({ task, onToggle, onDelete }: TaskItemProps) => {
         />
         <div className="task-item__content">
           <span className="task-item__title" data-testid={`task-title-${task.id}`}>
-            {task.title}
+            {typeof task.title === 'string' ? task.title : String(task.title || '').trim()}
           </span>
           {task.dueDate && !task.completed && (
             <div className="task-item__due-info" data-testid={`task-due-info-${task.id}`}>

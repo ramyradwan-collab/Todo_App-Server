@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { Task } from './types/Task';
-import { loadTasks, saveTasks } from './utils/storage';
+import { loadTasks, saveTasks, cleanupDataFile } from './utils/storage';
 import { addLog, getLogs, clearLogs } from './utils/logger';
 import { parseQAReport } from './utils/qaReportReader';
 
@@ -492,7 +492,26 @@ app.post('/tasks', (req: Request, res: Response) => {
           code: 'INVALID_DUE_DATE_TYPE'
         });
       }
-      // Allow past dates - they will be marked as overdue
+
+      // Validate that dueDate is in the future
+      const now = Date.now();
+      if (dueDate <= now) {
+        addLog('info', 'POST /tasks - Invalid request: dueDate is in the past');
+        return res.status(400).json({ 
+          error: 'Due date must be in the future. Please select a future date and time.',
+          code: 'DUE_DATE_IN_PAST'
+        });
+      }
+
+      // Validate that dueDate is not too far in the future (max 1 year)
+      const oneYearFromNow = now + (365 * 24 * 60 * 60 * 1000);
+      if (dueDate > oneYearFromNow) {
+        addLog('info', 'POST /tasks - Invalid request: dueDate is too far in the future');
+        return res.status(400).json({ 
+          error: 'Due date cannot be more than 1 year in the future. Please select a date within the next year.',
+          code: 'DUE_DATE_TOO_FAR'
+        });
+      }
     }
 
     const tasks = loadTasks();
@@ -624,6 +643,9 @@ app.delete('/tasks/:id', (req: Request, res: Response) => {
 
 // Start server
 app.listen(PORT, () => {
+  // Clean up and validate data on startup
+  cleanupDataFile();
+  
   const startupMessage = '='.repeat(50) + '\n' +
     '🚀 Todo API Server started\n' +
     `📍 Server running on http://localhost:${PORT}\n` +
