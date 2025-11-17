@@ -1,0 +1,159 @@
+import express, { Express } from 'express';
+import cors from 'cors';
+import { Task } from '../../src/types/Task';
+import { loadTasks, saveTasks } from '../../src/utils/storage';
+import { addLog, getLogs, clearLogs } from '../../src/utils/logger';
+
+/**
+ * Creates a test server instance
+ */
+export const createTestServer = (): Express => {
+  const app = express();
+
+  app.use(cors());
+  app.use(express.json());
+
+  // Request logging middleware
+  app.use((req, _res, next) => {
+    const timestamp = new Date().toISOString();
+    const logMessage = `[${timestamp}] ${req.method} ${req.path}`;
+    addLog('info', logMessage);
+    next();
+  });
+
+  // Health check
+  app.get('/health', (_req, res) => {
+    addLog('info', 'Health check requested');
+    res.json({ ok: true });
+  });
+
+  // Logs endpoint
+  app.get('/logs', (_req, res) => {
+    res.json(getLogs());
+  });
+
+  app.delete('/logs', (_req, res) => {
+    clearLogs();
+    addLog('info', 'Logs cleared');
+    res.status(204).send();
+  });
+
+  // Tasks endpoints
+  app.get('/tasks', (_req, res) => {
+    try {
+      const tasks = loadTasks();
+      const sortedTasks = [...tasks].sort((a, b) => b.createdAt - a.createdAt);
+      addLog('info', `GET /tasks - Returning ${sortedTasks.length} tasks`);
+      res.json(sortedTasks);
+    } catch (error) {
+      addLog('error', `GET /tasks - Error: ${error instanceof Error ? error.message : String(error)}`);
+      res.status(500).json({ error: 'Failed to load tasks' });
+    }
+  });
+
+  app.post('/tasks', (req, res) => {
+    try {
+      const { title } = req.body;
+
+      if (!title || typeof title !== 'string') {
+        addLog('info', 'POST /tasks - Invalid request: title missing or not a string');
+        return res.status(400).json({ error: 'Title is required and must be a string' });
+      }
+
+      const trimmedTitle = title.trim();
+      if (trimmedTitle.length === 0) {
+        addLog('info', 'POST /tasks - Invalid request: title is empty');
+        return res.status(400).json({ error: 'Title cannot be empty' });
+      }
+
+      const tasks = loadTasks();
+      const newTask: Task = {
+        id: crypto.randomUUID(),
+        title: trimmedTitle,
+        completed: false,
+        createdAt: Date.now(),
+      };
+
+      tasks.push(newTask);
+      saveTasks(tasks);
+
+      addLog('info', `POST /tasks - Created task: "${trimmedTitle}" (ID: ${newTask.id})`);
+      res.status(201).json(newTask);
+    } catch (error) {
+      addLog('error', `POST /tasks - Error: ${error instanceof Error ? error.message : String(error)}`);
+      res.status(500).json({ error: 'Failed to create task' });
+    }
+  });
+
+  app.put('/tasks/:id', (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, completed } = req.body;
+
+      const tasks = loadTasks();
+      const taskIndex = tasks.findIndex((task) => task.id === id);
+
+      if (taskIndex === -1) {
+        addLog('info', `PUT /tasks/${id} - Task not found`);
+        return res.status(404).json({ error: `Task with id ${id} not found` });
+      }
+
+      const task = tasks[taskIndex];
+
+      if (title !== undefined) {
+        if (typeof title !== 'string') {
+          addLog('info', `PUT /tasks/${id} - Invalid request: title must be a string`);
+          return res.status(400).json({ error: 'Title must be a string' });
+        }
+        const trimmedTitle = title.trim();
+        if (trimmedTitle.length === 0) {
+          addLog('info', `PUT /tasks/${id} - Invalid request: title is empty`);
+          return res.status(400).json({ error: 'Title cannot be empty' });
+        }
+        task.title = trimmedTitle;
+      }
+
+      if (completed !== undefined) {
+        if (typeof completed !== 'boolean') {
+          addLog('info', `PUT /tasks/${id} - Invalid request: completed must be a boolean`);
+          return res.status(400).json({ error: 'Completed must be a boolean' });
+        }
+        task.completed = completed;
+      }
+
+      saveTasks(tasks);
+      addLog('info', `PUT /tasks/${id} - Updated task: "${task.title}" (completed: ${task.completed})`);
+      res.json(task);
+    } catch (error) {
+      addLog('error', `PUT /tasks/${req.params.id} - Error: ${error instanceof Error ? error.message : String(error)}`);
+      res.status(500).json({ error: 'Failed to update task' });
+    }
+  });
+
+  app.delete('/tasks/:id', (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const tasks = loadTasks();
+      const taskIndex = tasks.findIndex((task) => task.id === id);
+
+      if (taskIndex === -1) {
+        addLog('info', `DELETE /tasks/${id} - Task not found`);
+        return res.status(404).json({ error: `Task with id ${id} not found` });
+      }
+
+      const deletedTask = tasks[taskIndex];
+      tasks.splice(taskIndex, 1);
+      saveTasks(tasks);
+
+      addLog('info', `DELETE /tasks/${id} - Deleted task: "${deletedTask.title}"`);
+      res.status(204).send();
+    } catch (error) {
+      addLog('error', `DELETE /tasks/${req.params.id} - Error: ${error instanceof Error ? error.message : String(error)}`);
+      res.status(500).json({ error: 'Failed to delete task' });
+    }
+  });
+
+  return app;
+};
+

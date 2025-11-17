@@ -1,0 +1,88 @@
+# Frontend Development Rules
+
+## General Principles
+- Write clean, maintainable, and well-documented code
+- Follow modern JavaScript/TypeScript best practices
+- Prioritize accessibility and user experience
+- Write self-documenting code with meaningful variable and function names
+- Keep functions small and focused on a single responsibility
+
+## Code Style
+- Use consistent indentation (2 spaces for JavaScript/TypeScript, 4 spaces for Python)
+- Use meaningful variable and function names (avoid abbreviations unless widely understood)
+- Prefer const over let, avoid var
+- Use arrow functions for callbacks and when appropriate
+- Use template literals for string concatenation
+- Prefer async/await over Promise chains
+
+## React/Component Guidelines (if applicable)
+- Use functional components with hooks
+- Keep components small and focused
+- Extract reusable logic into custom hooks
+- Use TypeScript for type safety when possible
+- Prefer composition over inheritance
+- Use meaningful prop names and provide default values when appropriate
+
+## File Organization
+- Group related files together
+- Use clear, descriptive file names
+- Separate concerns (components, utilities, hooks, types)
+- Keep files focused and avoid overly large files
+
+## Testing
+- Write tests for critical functionality
+- Keep tests simple and focused
+- Use descriptive test names
+
+## Performance
+- Optimize images and assets
+- Use lazy loading when appropriate
+- Minimize bundle size
+- Avoid unnecessary re-renders
+
+## Security
+- Sanitize user inputs
+- Use environment variables for sensitive data
+- Follow OWASP security best practices
+- Never commit API keys or secrets
+
+## Git
+- Write clear, descriptive commit messages
+- Keep commits focused and atomic
+- Use conventional commit format when possible
+
+## Documentation
+- Add JSDoc comments for complex functions
+- Keep README up to date
+- Document API endpoints and data structures
+- Explain "why" not just "what" in comments
+
+Scope/stack:
+- React + TypeScript (Vite). No backend.
+- Do work in small, safe diffs and show me a brief summary each time.
+- Ask for confirmation before running terminal commands.
+
+MVP capabilities:
+- Add a task (title). Newest tasks appear at the top.
+- Toggle completed (clear visual change).
+- Delete a task.
+- Persist tasks to localStorage (survive page refresh).
+- Simple filters: All / Active / Completed with updating counts.
+
+UX vibe:
+- Clean, modern, centered card ~600px wide (responsive on small screens).
+- Pleasant spacing/typography. Subtle gradient background (animation optional).
+- Optional: checkbox colors—red when unchecked, green with a white ✓ when checked (override default browser styles).
+
+Quality:
+- Use a small typed Task model (id, title, completed, createdAt in ms) and a helper to create one with a trimmed title + unique id (crypto.randomUUID when available).
+- Keep components small and readable. Avoid heavy state libraries.
+- Keep naming consistent (Task/TaskItem/TaskInput). No backend.
+
+Behavior:
+- Prefer minimal changes to achieve outcomes.
+- If something is ambiguous, propose a sensible default and proceed after I confirm.
+
+Deliverables:
+- A runnable project (npm run dev) with the MVP working as described.
+- Short diffs for each change; I will approve.
