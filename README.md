@@ -8,9 +8,15 @@ A full-stack todo application with React frontend and Express backend, featuring
 - ✅ Add new tasks with validation
 - ✅ Toggle task completion
 - ✅ Delete tasks
-- ✅ Filter tasks (All / Active / Completed) with live counts
+- ✅ Filter tasks (All / Active / Completed) with live counts (verified to match actual task states)
+- ✅ **Time-sensitive tasks** with date/time picker
+  - Optional due date and time selection
+  - Real-time remaining time display (updates every minute)
+  - Overdue task highlighting (red border and warning icon)
+  - Formatted time display (days, hours, minutes, or "Overdue")
 - ✅ Persistent storage via REST API
 - ✅ Clean, centered card UI with animated gradient background (deep orange & black theme)
+- ✅ Enhanced date/time selector UI with improved spacing and visual design
 - ✅ Custom styled checkboxes (red when unchecked, green with checkmark when checked)
 - ✅ System health banner (driven by `/health` endpoint)
 - ✅ Responsive design
@@ -22,9 +28,10 @@ A full-stack todo application with React frontend and Express backend, featuring
 - ✅ Request logging and monitoring
 - ✅ Real-time logs dashboard at `http://localhost:3000/`
 - ✅ Test results display on server page
-- ✅ Input validation (empty titles, max length 500 chars)
+- ✅ Input validation (empty titles, max length 500 chars, dueDate validation)
 - ✅ Clear 4xx error messages with error codes
 - ✅ CORS enabled for frontend communication
+- ✅ Support for time-sensitive tasks with dueDate field
 
 ## Tech Stack
 
@@ -172,12 +179,12 @@ Visit `http://localhost:3000/` to see:
 
 - `GET /tasks` - Get all tasks (sorted newest first)
 - `POST /tasks` - Create a new task
-  - Body: `{ title: string }`
-  - Validation: Title required, max 500 chars, cannot be empty
+  - Body: `{ title: string, dueDate?: number }`
+  - Validation: Title required, max 500 chars, cannot be empty. dueDate optional timestamp (number)
   - Returns: Created task object
 - `PUT /tasks/:id` - Update a task
-  - Body: `{ title?: string, completed?: boolean }`
-  - Validation: Title max 500 chars if provided
+  - Body: `{ title?: string, completed?: boolean, dueDate?: number | null }`
+  - Validation: Title max 500 chars if provided. dueDate can be set, updated, or cleared (null)
   - Returns: Updated task object
 - `DELETE /tasks/:id` - Delete a task
   - Returns: 204 No Content
@@ -227,9 +234,11 @@ npm run test:ui:headed   # With browser visible
 - ✅ Delete task
 - ✅ Persistence after refresh
 - ✅ Filter by Active/Completed
-- ✅ Filter counts verification
+- ✅ Filter counts verification (with timeout handling and state verification)
+- ✅ Filter counts update after operations (add, toggle, delete)
 - ✅ System health banner
 - ✅ Full workflow (add → toggle → delete → refresh)
+- ⏳ Time-sensitive task tests (future enhancement)
 
 ### Test Data Isolation
 
@@ -237,12 +246,42 @@ npm run test:ui:headed   # With browser visible
 - Tests automatically reset data before/after each test
 - Frontend E2E tests reset backend data via fixtures
 
+### Test Reliability Improvements
+
+- **Timeout Handling**: E2E tests include explicit timeouts (5-10 seconds) for async operations
+- **State Verification**: Filter count tests verify counts match actual displayed task states
+- **Wait Strategies**: Tests use `waitForTimeout` and `waitForSelector` to handle state updates
+- **Count Validation**: Filter counts are verified both by text content and by counting actual DOM elements
+
 ### QA Report
 
 After running tests, `QA_REPORT.md` is automatically generated with:
 - Test summary (total, passed, failed, skipped, pass rate)
 - Individual test results with suggestions
 - Organized by Backend API Tests and Frontend E2E Tests sections
+
+## Time-Sensitive Tasks Feature
+
+### Overview
+Tasks can optionally be marked as "time-sensitive" with a due date and time. This feature provides:
+- Visual countdown showing remaining time
+- Automatic overdue detection and highlighting
+- Real-time updates (every minute)
+
+### Usage
+1. Click the "⏰ Time sensitive" checkbox when creating a task
+2. Select a date and time using the date/time pickers
+3. The task will display:
+   - Remaining time (e.g., "2d 5h remaining", "30m remaining")
+   - Full due date/time below the countdown
+   - Red highlighting and warning icon if overdue
+
+### Technical Details
+- Due dates are stored as timestamps (milliseconds) in the `dueDate` field
+- Remaining time updates automatically every minute
+- Overdue tasks are highlighted with red border and background
+- Completed tasks don't show due date information
+- Due dates can be updated or cleared via the API
 
 ## Development
 
@@ -309,7 +348,8 @@ Visit `http://localhost:3000/` to access:
 
 - **Title**: Required, string type, trimmed, 1-500 characters
 - **Completed**: Boolean type (when updating)
-- **Error Codes**: `EMPTY_TITLE`, `TITLE_TOO_LONG`, `INVALID_TITLE_TYPE`
+- **DueDate**: Optional, number type (timestamp in milliseconds), can be set to null to clear
+- **Error Codes**: `EMPTY_TITLE`, `TITLE_TOO_LONG`, `INVALID_TITLE_TYPE`, `INVALID_DUE_DATE_TYPE`
 
 ## Contributing
 

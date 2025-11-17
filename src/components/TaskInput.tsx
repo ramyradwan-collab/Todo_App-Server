@@ -36,17 +36,19 @@ export const TaskInput = ({ onAddTask }: TaskInputProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="task-input" data-testid="task-input-form">
-      <input
-        type="text"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        placeholder="Add a new task..."
-        className="task-input__field"
-        data-testid="task-input-field"
-      />
-      <button type="submit" className="task-input__button" data-testid="task-input-submit">
-        Add
-      </button>
+      <div className="task-input__main-row">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Add a new task..."
+          className="task-input__field"
+          data-testid="task-input-field"
+        />
+        <button type="submit" className="task-input__button" data-testid="task-input-submit">
+          Add
+        </button>
+      </div>
       <div className="task-input__time-sensitive">
         <label className="task-input__toggle-label" data-testid="time-sensitive-toggle-label">
           <input
@@ -56,7 +58,7 @@ export const TaskInput = ({ onAddTask }: TaskInputProps) => {
             className="task-input__toggle"
             data-testid="time-sensitive-toggle"
           />
-          <span>Time sensitive</span>
+          <span>⏰ Time sensitive</span>
         </label>
         {isTimeSensitive && (
           <div className="task-input__datetime" data-testid="datetime-picker">

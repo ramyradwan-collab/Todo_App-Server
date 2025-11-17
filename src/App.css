@@ -52,14 +52,14 @@
 
 .todo-card {
   width: 100%;
-  max-width: 600px;
+  max-width: 650px;
   background: #1a1a1a;
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  padding: 2rem;
+  padding: 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .todo-card__title {
@@ -113,102 +113,183 @@
 /* Task Input */
 .task-input {
   display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #222;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.task-input__main-row {
+  display: flex;
   gap: 0.75rem;
+  align-items: stretch;
 }
 
 .task-input__field {
   flex: 1;
-  padding: 0.75rem 1rem;
-  border: 2px solid #333;
-  border-radius: 8px;
+  padding: 0.875rem 1.25rem;
+  border: 2px solid #3a3a3a;
+  border-radius: 10px;
   font-size: 1rem;
   background: #2a2a2a;
   color: white;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .task-input__field::placeholder {
-  color: #666;
+  color: #888;
 }
 
 .task-input__field:focus {
   outline: none;
   border-color: #FF6B35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1), 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: #2d2d2d;
 }
 
 .task-input__button {
-  padding: 0.75rem 1.5rem;
-  background: #FF6B35;
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, #FF6B35 0%, #FF4500 100%);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(255, 107, 53, 0.3);
+  white-space: nowrap;
 }
 
 .task-input__button:hover {
-  background: #FF4500;
+  background: linear-gradient(135deg, #FF4500 0%, #FF6B35 100%);
+  box-shadow: 0 6px 12px rgba(255, 107, 53, 0.4);
+  transform: translateY(-1px);
 }
 
 .task-input__button:active {
-  transform: scale(0.98);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
 }
 
 .task-input__time-sensitive {
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #333;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .task-input__toggle-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   cursor: pointer;
-  font-size: 0.9rem;
-  color: #ccc;
+  font-size: 0.95rem;
+  color: #ddd;
   user-select: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.task-input__toggle-label:hover {
+  background: #2a2a2a;
+  color: #FF6B35;
 }
 
 .task-input__toggle {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   cursor: pointer;
   accent-color: #FF6B35;
+  flex-shrink: 0;
 }
 
 .task-input__datetime {
   display: flex;
-  gap: 0.5rem;
-  margin-left: 24px;
+  gap: 0.75rem;
+  margin-left: 0;
+  padding: 1rem;
+  background: linear-gradient(135deg, #1f1f1f 0%, #252525 100%);
+  border-radius: 10px;
+  border: 1px solid #3a3a3a;
+  align-items: center;
+  position: relative;
+}
+
+.task-input__datetime::before {
+  content: '📅';
+  font-size: 1.3rem;
+  margin-right: 0.5rem;
+  opacity: 0.9;
 }
 
 .task-input__date,
 .task-input__time {
-  padding: 0.5rem;
-  border: 2px solid #333;
-  border-radius: 6px;
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid #3a3a3a;
+  border-radius: 8px;
   background: #2a2a2a;
   color: white;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-family: inherit;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.task-input__date:hover,
+.task-input__time:hover {
+  border-color: #555;
+  background: #2d2d2d;
 }
 
 .task-input__date:focus,
 .task-input__time:focus {
   outline: none;
   border-color: #FF6B35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+  background: #2d2d2d;
+}
+
+/* Custom styling for date/time inputs */
+.task-input__date::-webkit-calendar-picker-indicator,
+.task-input__time::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.task-input__date::-webkit-calendar-picker-indicator:hover,
+.task-input__time::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 /* Filter Buttons */
 .filter-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   border-bottom: 2px solid #333;
-  padding-bottom: 1rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .filter-buttons__button {
@@ -242,9 +323,11 @@
 .todo-card__tasks {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  max-height: 400px;
+  gap: 0.875rem;
+  max-height: 500px;
   overflow-y: auto;
+  padding-right: 0.5rem;
+  padding-top: 0.5rem;
 }
 
 .todo-card__empty {
@@ -259,10 +342,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
+  padding: 1.125rem 1.25rem;
   background: #2a2a2a;
-  border-radius: 8px;
+  border-radius: 10px;
+  border: 1px solid #333;
   transition: all 0.2s;
+  margin-bottom: 0.25rem;
 }
 
 .task-item:hover {

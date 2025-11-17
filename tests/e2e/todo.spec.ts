@@ -100,16 +100,20 @@ test.describe('Todo App E2E', () => {
     // Arrange: Add multiple tasks
     await page.getByTestId('task-input-field').fill('Active Task 1');
     await page.getByTestId('task-input-submit').click();
-    await page.waitForSelector('[data-testid^="task-item-"]');
+    await page.waitForSelector('[data-testid^="task-item-"]', { timeout: 10000 });
     
     await page.getByTestId('task-input-field').fill('Active Task 2');
     await page.getByTestId('task-input-submit').click();
+    await page.waitForTimeout(500); // Wait for state update
     
     await page.getByTestId('task-input-field').fill('Completed Task');
     await page.getByTestId('task-input-submit').click();
+    await page.waitForTimeout(500); // Wait for state update
     
     // Wait for all tasks to appear
-    await page.waitForSelector('[data-testid^="task-item-"]');
+    await page.waitForSelector('[data-testid^="task-item-"]', { timeout: 10000 });
+    const taskItems = await page.locator('[data-testid^="task-item-"]').count();
+    expect(taskItems).toBe(3);
     
     // Complete one task
     const completedTask = page.locator('[data-testid^="task-item-"]').filter({
@@ -118,11 +122,18 @@ test.describe('Todo App E2E', () => {
     const completedTaskId = await completedTask.getAttribute('data-testid');
     const completedCheckboxId = completedTaskId!.replace('task-item-', 'task-checkbox-');
     await page.getByTestId(completedCheckboxId).click();
+    await page.waitForTimeout(500); // Wait for state update
     
-    // Act & Assert: Verify filter counts
-    await expect(page.getByTestId('filter-all')).toContainText('All (3)');
-    await expect(page.getByTestId('filter-active')).toContainText('Active (2)');
-    await expect(page.getByTestId('filter-completed')).toContainText('Completed (1)');
+    // Act & Assert: Verify filter counts match actual task states
+    await expect(page.getByTestId('filter-all')).toContainText('All (3)', { timeout: 5000 });
+    await expect(page.getByTestId('filter-active')).toContainText('Active (2)', { timeout: 5000 });
+    await expect(page.getByTestId('filter-completed')).toContainText('Completed (1)', { timeout: 5000 });
+    
+    // Verify counts match displayed tasks
+    const activeTasks = await page.locator('[data-testid^="task-item-"]:not(.task-item--completed)').count();
+    const completedTasks = await page.locator('[data-testid^="task-item-"].task-item--completed').count();
+    expect(activeTasks).toBe(2);
+    expect(completedTasks).toBe(1);
   });
 
   test('should filter tasks by Active', async ({ page, resetBackendData }) => {
@@ -234,34 +245,52 @@ test.describe('Todo App E2E', () => {
     // Arrange: Add tasks
     await page.getByTestId('task-input-field').fill('Task 1');
     await page.getByTestId('task-input-submit').click();
-    await page.waitForSelector('[data-testid^="task-item-"]');
+    await page.waitForSelector('[data-testid^="task-item-"]', { timeout: 10000 });
+    await page.waitForTimeout(500); // Wait for state update
     
     await page.getByTestId('task-input-field').fill('Task 2');
     await page.getByTestId('task-input-submit').click();
+    await page.waitForTimeout(500); // Wait for state update
     
-    // Verify initial counts
-    await expect(page.getByTestId('filter-all')).toContainText('All (2)');
-    await expect(page.getByTestId('filter-active')).toContainText('Active (2)');
-    await expect(page.getByTestId('filter-completed')).toContainText('Completed (0)');
+    // Verify initial counts match actual tasks
+    await expect(page.getByTestId('filter-all')).toContainText('All (2)', { timeout: 5000 });
+    await expect(page.getByTestId('filter-active')).toContainText('Active (2)', { timeout: 5000 });
+    await expect(page.getByTestId('filter-completed')).toContainText('Completed (0)', { timeout: 5000 });
+    
+    // Verify actual task count
+    const initialTaskCount = await page.locator('[data-testid^="task-item-"]').count();
+    expect(initialTaskCount).toBe(2);
     
     // Act: Complete one task
     const taskItem = page.locator('[data-testid^="task-item-"]').first();
     const taskId = await taskItem.getAttribute('data-testid');
     const checkboxId = taskId!.replace('task-item-', 'task-checkbox-');
     await page.getByTestId(checkboxId).click();
+    await page.waitForTimeout(500); // Wait for state update
     
-    // Assert: Counts should update
-    await expect(page.getByTestId('filter-all')).toContainText('All (2)');
-    await expect(page.getByTestId('filter-active')).toContainText('Active (1)');
-    await expect(page.getByTestId('filter-completed')).toContainText('Completed (1)');
+    // Assert: Counts should update and match actual task states
+    await expect(page.getByTestId('filter-all')).toContainText('All (2)', { timeout: 5000 });
+    await expect(page.getByTestId('filter-active')).toContainText('Active (1)', { timeout: 5000 });
+    await expect(page.getByTestId('filter-completed')).toContainText('Completed (1)', { timeout: 5000 });
+    
+    // Verify actual task states match counts
+    const activeCount = await page.locator('[data-testid^="task-item-"]:not(.task-item--completed)').count();
+    const completedCount = await page.locator('[data-testid^="task-item-"].task-item--completed').count();
+    expect(activeCount).toBe(1);
+    expect(completedCount).toBe(1);
     
     // Act: Delete a task
     const deleteButtonId = taskId!.replace('task-item-', 'task-delete-');
     await page.getByTestId(deleteButtonId).click();
+    await page.waitForTimeout(500); // Wait for state update
     
-    // Assert: Counts should update again
-    await expect(page.getByTestId('filter-all')).toContainText('All (1)');
-    await expect(page.getByTestId('filter-active')).toContainText('Active (1)');
-    await expect(page.getByTestId('filter-completed')).toContainText('Completed (0)');
+    // Assert: Counts should update again and match actual task states
+    await expect(page.getByTestId('filter-all')).toContainText('All (1)', { timeout: 5000 });
+    await expect(page.getByTestId('filter-active')).toContainText('Active (1)', { timeout: 5000 });
+    await expect(page.getByTestId('filter-completed')).toContainText('Completed (0)', { timeout: 5000 });
+    
+    // Verify final task count
+    const finalTaskCount = await page.locator('[data-testid^="task-item-"]').count();
+    expect(finalTaskCount).toBe(1);
   });
 });

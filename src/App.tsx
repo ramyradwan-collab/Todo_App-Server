@@ -77,12 +77,21 @@ function App() {
     return [...filtered].sort((a, b) => b.createdAt - a.createdAt);
   }, [tasks, filter]);
 
-  // Calculate counts
+  // Calculate counts - ensure they match actual task states
   const counts = useMemo(() => {
+    const allCount = tasks.length;
+    const activeCount = tasks.filter((task) => !task.completed).length;
+    const completedCount = tasks.filter((task) => task.completed).length;
+    
+    // Verification: active + completed should equal all
+    if (activeCount + completedCount !== allCount) {
+      console.warn('Filter count mismatch detected:', { allCount, activeCount, completedCount });
+    }
+    
     return {
-      all: tasks.length,
-      active: tasks.filter((task) => !task.completed).length,
-      completed: tasks.filter((task) => task.completed).length,
+      all: allCount,
+      active: activeCount,
+      completed: completedCount,
     };
   }, [tasks]);
 
