@@ -38,6 +38,23 @@ export const createTestServer = (): Express => {
     res.status(204).send();
   });
 
+  // Stats endpoint
+  app.get('/stats', (_req, res) => {
+    try {
+      const tasks = loadTasks();
+      const stats = {
+        total: tasks.length,
+        active: tasks.filter((task) => !task.completed).length,
+        completed: tasks.filter((task) => task.completed).length,
+      };
+      addLog('info', `GET /stats - Total: ${stats.total}, Active: ${stats.active}, Completed: ${stats.completed}`);
+      res.json(stats);
+    } catch (error) {
+      addLog('error', `GET /stats - Error: ${error instanceof Error ? error.message : String(error)}`);
+      res.status(500).json({ error: 'Failed to load statistics' });
+    }
+  });
+
   // Tasks endpoints
   app.get('/tasks', (_req, res) => {
     try {
@@ -55,15 +72,32 @@ export const createTestServer = (): Express => {
     try {
       const { title } = req.body;
 
-      if (!title || typeof title !== 'string') {
+      if (title === undefined || title === null || typeof title !== 'string') {
         addLog('info', 'POST /tasks - Invalid request: title missing or not a string');
-        return res.status(400).json({ error: 'Title is required and must be a string' });
+        return res.status(400).json({ 
+          error: 'Title is required and must be a string',
+          code: 'INVALID_TITLE_TYPE'
+        });
       }
 
       const trimmedTitle = title.trim();
       if (trimmedTitle.length === 0) {
         addLog('info', 'POST /tasks - Invalid request: title is empty');
-        return res.status(400).json({ error: 'Title cannot be empty' });
+        return res.status(400).json({ 
+          error: 'Title cannot be empty. Please provide a non-empty task title.',
+          code: 'EMPTY_TITLE'
+        });
+      }
+
+      const MAX_TITLE_LENGTH = 500;
+      if (trimmedTitle.length > MAX_TITLE_LENGTH) {
+        addLog('info', `POST /tasks - Invalid request: title too long (${trimmedTitle.length} chars)`);
+        return res.status(400).json({ 
+          error: `Title is too long. Maximum length is ${MAX_TITLE_LENGTH} characters. Current length: ${trimmedTitle.length}`,
+          code: 'TITLE_TOO_LONG',
+          maxLength: MAX_TITLE_LENGTH,
+          currentLength: trimmedTitle.length
+        });
       }
 
       const tasks = loadTasks();
@@ -103,12 +137,28 @@ export const createTestServer = (): Express => {
       if (title !== undefined) {
         if (typeof title !== 'string') {
           addLog('info', `PUT /tasks/${id} - Invalid request: title must be a string`);
-          return res.status(400).json({ error: 'Title must be a string' });
+          return res.status(400).json({ 
+            error: 'Title must be a string',
+            code: 'INVALID_TITLE_TYPE'
+          });
         }
         const trimmedTitle = title.trim();
         if (trimmedTitle.length === 0) {
           addLog('info', `PUT /tasks/${id} - Invalid request: title is empty`);
-          return res.status(400).json({ error: 'Title cannot be empty' });
+          return res.status(400).json({ 
+            error: 'Title cannot be empty. Please provide a non-empty task title.',
+            code: 'EMPTY_TITLE'
+          });
+        }
+        const MAX_TITLE_LENGTH = 500;
+        if (trimmedTitle.length > MAX_TITLE_LENGTH) {
+          addLog('info', `PUT /tasks/${id} - Invalid request: title too long (${trimmedTitle.length} chars)`);
+          return res.status(400).json({ 
+            error: `Title is too long. Maximum length is ${MAX_TITLE_LENGTH} characters. Current length: ${trimmedTitle.length}`,
+            code: 'TITLE_TOO_LONG',
+            maxLength: MAX_TITLE_LENGTH,
+            currentLength: trimmedTitle.length
+          });
         }
         task.title = trimmedTitle;
       }

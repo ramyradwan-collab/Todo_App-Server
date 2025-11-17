@@ -31,10 +31,10 @@ function App() {
     loadTasks();
   }, []);
 
-  const handleAddTask = async (title: string) => {
+  const handleAddTask = async (title: string, dueDate?: number) => {
     try {
       setError(null);
-      const newTask = await createTask(title);
+      const newTask = await createTask(title, dueDate);
       setTasks((prev) => [newTask, ...prev]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create task');

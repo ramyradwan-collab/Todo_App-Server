@@ -1,0 +1,5 @@
+
+> todo-backend@1.0.0 test:backend
+> NODE_ENV=test vitest run
+
+sh: vitest: command not found

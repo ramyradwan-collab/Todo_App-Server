@@ -453,9 +453,9 @@ app.get('/tasks', (_req: Request, res: Response) => {
 // POST /tasks - Create a new task
 app.post('/tasks', (req: Request, res: Response) => {
   try {
-    const { title } = req.body;
+    const { title, dueDate } = req.body;
 
-    if (!title || typeof title !== 'string') {
+    if (title === undefined || title === null || typeof title !== 'string') {
       addLog('info', 'POST /tasks - Invalid request: title missing or not a string');
       return res.status(400).json({ 
         error: 'Title is required and must be a string',
@@ -483,18 +483,31 @@ app.post('/tasks', (req: Request, res: Response) => {
       });
     }
 
+    // Validate dueDate if provided
+    if (dueDate !== undefined && dueDate !== null) {
+      if (typeof dueDate !== 'number' || isNaN(dueDate)) {
+        addLog('info', 'POST /tasks - Invalid request: dueDate must be a valid number');
+        return res.status(400).json({ 
+          error: 'dueDate must be a valid timestamp (number)',
+          code: 'INVALID_DUE_DATE_TYPE'
+        });
+      }
+      // Allow past dates - they will be marked as overdue
+    }
+
     const tasks = loadTasks();
     const newTask: Task = {
       id: crypto.randomUUID(),
       title: trimmedTitle,
       completed: false,
       createdAt: Date.now(),
+      ...(dueDate && { dueDate }),
     };
 
     tasks.push(newTask);
     saveTasks(tasks);
 
-    addLog('info', `POST /tasks - Created task: "${trimmedTitle}" (ID: ${newTask.id})`);
+    addLog('info', `POST /tasks - Created task: "${trimmedTitle}" (ID: ${newTask.id})${dueDate ? ` with due date` : ''}`);
     res.status(201).json(newTask);
   } catch (error) {
     addLog('error', `POST /tasks - Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -506,7 +519,7 @@ app.post('/tasks', (req: Request, res: Response) => {
 app.put('/tasks/:id', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, completed } = req.body;
+    const { title, completed, dueDate } = req.body;
 
     const tasks = loadTasks();
     const taskIndex = tasks.findIndex((task) => task.id === id);
@@ -546,6 +559,24 @@ app.put('/tasks/:id', (req: Request, res: Response) => {
         });
       }
       task.title = trimmedTitle;
+    }
+
+    // Update dueDate if provided
+    if (dueDate !== undefined) {
+      if (dueDate === null) {
+        // Allow clearing dueDate by setting it to null
+        delete task.dueDate;
+      } else {
+        if (typeof dueDate !== 'number' || isNaN(dueDate)) {
+          addLog('info', `PUT /tasks/${id} - Invalid request: dueDate must be a valid number`);
+          return res.status(400).json({ 
+            error: 'dueDate must be a valid timestamp (number)',
+            code: 'INVALID_DUE_DATE_TYPE'
+          });
+        }
+        // Allow past dates - they will be marked as overdue
+        task.dueDate = dueDate;
+      }
     }
 
     // Update completed status if provided

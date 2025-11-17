@@ -1,0 +1,171 @@
+
+> todo-app@0.0.0 test
+> npm run test:backend && npm run test:ui && npm run generate-qa-report
+
+
+> todo-app@0.0.0 test:backend
+> cd backend && npm run test:backend
+
+
+> todo-backend@1.0.0 test:backend
+> NODE_ENV=test vitest run
+
+
+ RUN  v1.6.1 /Users/ramyfradwan/Workspace Dev/frontend-cursor-test2/backend
+
+stdout | tests/api/tasks.test.ts > Tasks API > GET /health > should return { ok: true }
+[2025-11-17T18:19:27.139Z] GET /health
+Health check requested
+
+stdout | tests/api/tasks.test.ts > Tasks API > GET /tasks > should return empty array when no tasks exist
+[2025-11-17T18:19:27.144Z] GET /tasks
+GET /tasks - Returning 0 tasks
+
+stdout | tests/api/tasks.test.ts > Tasks API > GET /tasks > should return all tasks sorted newest first
+[2025-11-17T18:19:27.145Z] GET /tasks
+GET /tasks - Returning 3 tasks
+
+stdout | tests/api/tasks.test.ts > Tasks API > GET /tasks > should return tasks with all required fields
+[2025-11-17T18:19:27.147Z] GET /tasks
+GET /tasks - Returning 1 tasks
+
+stdout | tests/api/tasks.test.ts > Tasks API > POST /tasks > should create a new task with valid title
+[2025-11-17T18:19:27.151Z] POST /tasks
+POST /tasks - Created task: "New Task" (ID: 38c07df2-566f-458e-8b81-a8af1be065b9)
+
+stdout | tests/api/tasks.test.ts > Tasks API > POST /tasks > should trim whitespace from task title
+[2025-11-17T18:19:27.152Z] POST /tasks
+POST /tasks - Created task: "Trimmed Task" (ID: 3d253811-96bc-47ee-84d1-2c309b6dfd0b)
+
+stdout | tests/api/tasks.test.ts > Tasks API > POST /tasks > should reject empty title
+[2025-11-17T18:19:27.153Z] POST /tasks
+POST /tasks - Invalid request: title is empty
+
+stdout | tests/api/tasks.test.ts > Tasks API > POST /tasks > should reject whitespace-only title
+[2025-11-17T18:19:27.154Z] POST /tasks
+POST /tasks - Invalid request: title is empty
+
+stdout | tests/api/tasks.test.ts > Tasks API > POST /tasks > should reject very long title
+[2025-11-17T18:19:27.155Z] POST /tasks
+POST /tasks - Invalid request: title too long (501 chars)
+
+stdout | tests/api/tasks.test.ts > Tasks API > POST /tasks > should reject missing title field
+[2025-11-17T18:19:27.155Z] POST /tasks
+POST /tasks - Invalid request: title missing or not a string
+
+stdout | tests/api/tasks.test.ts > Tasks API > POST /tasks > should reject non-string title
+[2025-11-17T18:19:27.156Z] POST /tasks
+POST /tasks - Invalid request: title missing or not a string
+
+stdout | tests/api/tasks.test.ts > Tasks API > POST /tasks > should persist created task to data file
+[2025-11-17T18:19:27.157Z] POST /tasks
+POST /tasks - Created task: "Persisted Task" (ID: ef9ca92e-281c-43cc-8a5d-ebdff8969796)
+[2025-11-17T18:19:27.158Z] GET /tasks
+GET /tasks - Returning 1 tasks
+
+stdout | tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should toggle task completion status
+[2025-11-17T18:19:27.159Z] PUT /tasks/e31ee586-297c-40bb-a6e3-a114cfd5548c
+PUT /tasks/e31ee586-297c-40bb-a6e3-a114cfd5548c - Updated task: "Task to Toggle" (completed: true)
+
+stdout | tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should toggle from completed to active
+[2025-11-17T18:19:27.160Z] PUT /tasks/9e6732c8-238b-4492-a8e0-f750eb96d085
+PUT /tasks/9e6732c8-238b-4492-a8e0-f750eb96d085 - Updated task: "Completed Task" (completed: false)
+
+stdout | tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should return 404 when task does not exist
+[2025-11-17T18:19:27.161Z] PUT /tasks/non-existent-id
+PUT /tasks/non-existent-id - Task not found
+
+stdout | tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should reject non-boolean completed value
+[2025-11-17T18:19:27.161Z] PUT /tasks/996e0486-1028-4618-93b1-57ac59a132e6
+PUT /tasks/996e0486-1028-4618-93b1-57ac59a132e6 - Invalid request: completed must be a boolean
+
+stdout | tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should reject very long title on update
+[2025-11-17T18:19:27.162Z] PUT /tasks/76068abb-086f-4cb8-9f1f-234a1fe19344
+PUT /tasks/76068abb-086f-4cb8-9f1f-234a1fe19344 - Invalid request: title too long (501 chars)
+
+stdout | tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should persist completion status change
+[2025-11-17T18:19:27.163Z] PUT /tasks/214d369b-5186-4495-8d32-2cd682ae7894
+PUT /tasks/214d369b-5186-4495-8d32-2cd682ae7894 - Updated task: "Task to Complete" (completed: true)
+[2025-11-17T18:19:27.164Z] GET /tasks
+GET /tasks - Returning 1 tasks
+
+stdout | tests/api/tasks.test.ts > Tasks API > DELETE /tasks/:id > should delete an existing task
+[2025-11-17T18:19:27.164Z] DELETE /tasks/d113bdf5-c51e-43b5-9ddf-a9f9f3209dde
+DELETE /tasks/d113bdf5-c51e-43b5-9ddf-a9f9f3209dde - Deleted task: "Task 1"
+
+stdout | tests/api/tasks.test.ts > Tasks API > DELETE /tasks/:id > should delete an existing task
+[2025-11-17T18:19:27.165Z] GET /tasks
+GET /tasks - Returning 1 tasks
+
+stdout | tests/api/tasks.test.ts > Tasks API > DELETE /tasks/:id > should return 404 when task does not exist
+[2025-11-17T18:19:27.165Z] DELETE /tasks/non-existent-id
+DELETE /tasks/non-existent-id - Task not found
+
+stdout | tests/api/tasks.test.ts > Tasks API > DELETE /tasks/:id > should persist deletion to data file
+[2025-11-17T18:19:27.166Z] DELETE /tasks/8e44657c-0920-4517-9973-a74a20ed4c26
+DELETE /tasks/8e44657c-0920-4517-9973-a74a20ed4c26 - Deleted task: "Task 1"
+[2025-11-17T18:19:27.166Z] GET /tasks
+GET /tasks - Returning 1 tasks
+
+stdout | tests/api/tasks.test.ts > Tasks API > GET /stats > should return task statistics
+[2025-11-17T18:19:27.167Z] GET /stats
+GET /stats - Total: 3, Active: 2, Completed: 1
+
+stdout | tests/api/tasks.test.ts > Tasks API > GET /stats > should return zero counts when no tasks exist
+[2025-11-17T18:19:27.168Z] GET /stats
+GET /stats - Total: 0, Active: 0, Completed: 0
+
+stdout | tests/api/tasks.test.ts > Tasks API > Integration: Full workflow > should handle complete task lifecycle
+[2025-11-17T18:19:27.168Z] POST /tasks
+POST /tasks - Created task: "Lifecycle Task" (ID: 90e92563-8262-4c5b-a3bd-16b7b0a693b8)
+[2025-11-17T18:19:27.169Z] GET /tasks
+GET /tasks - Returning 1 tasks
+
+stdout | tests/api/tasks.test.ts > Tasks API > Integration: Full workflow > should handle complete task lifecycle
+[2025-11-17T18:19:27.169Z] PUT /tasks/90e92563-8262-4c5b-a3bd-16b7b0a693b8
+PUT /tasks/90e92563-8262-4c5b-a3bd-16b7b0a693b8 - Updated task: "Lifecycle Task" (completed: true)
+[2025-11-17T18:19:27.169Z] DELETE /tasks/90e92563-8262-4c5b-a3bd-16b7b0a693b8
+DELETE /tasks/90e92563-8262-4c5b-a3bd-16b7b0a693b8 - Deleted task: "Lifecycle Task"
+
+stdout | tests/api/tasks.test.ts > Tasks API > Integration: Full workflow > should handle complete task lifecycle
+[2025-11-17T18:19:27.170Z] GET /tasks
+GET /tasks - Returning 0 tasks
+
+ ✓ tests/api/tasks.test.ts > Tasks API > GET /health > should return { ok: true }
+ ✓ tests/api/tasks.test.ts > Tasks API > GET /tasks > should return empty array when no tasks exist
+ ✓ tests/api/tasks.test.ts > Tasks API > GET /tasks > should return all tasks sorted newest first
+ ✓ tests/api/tasks.test.ts > Tasks API > GET /tasks > should return tasks with all required fields
+ ✓ tests/api/tasks.test.ts > Tasks API > POST /tasks > should create a new task with valid title
+ ✓ tests/api/tasks.test.ts > Tasks API > POST /tasks > should trim whitespace from task title
+ ✓ tests/api/tasks.test.ts > Tasks API > POST /tasks > should reject empty title
+ ✓ tests/api/tasks.test.ts > Tasks API > POST /tasks > should reject whitespace-only title
+ ✓ tests/api/tasks.test.ts > Tasks API > POST /tasks > should reject very long title
+ ✓ tests/api/tasks.test.ts > Tasks API > POST /tasks > should reject missing title field
+ ✓ tests/api/tasks.test.ts > Tasks API > POST /tasks > should reject non-string title
+ ✓ tests/api/tasks.test.ts > Tasks API > POST /tasks > should persist created task to data file
+ ✓ tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should toggle task completion status
+ ✓ tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should toggle from completed to active
+ ✓ tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should return 404 when task does not exist
+ ✓ tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should reject non-boolean completed value
+ ✓ tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should reject very long title on update
+ ✓ tests/api/tasks.test.ts > Tasks API > PUT /tasks/:id (toggle completed) > should persist completion status change
+ ✓ tests/api/tasks.test.ts > Tasks API > DELETE /tasks/:id > should delete an existing task
+ ✓ tests/api/tasks.test.ts > Tasks API > DELETE /tasks/:id > should return 404 when task does not exist
+ ✓ tests/api/tasks.test.ts > Tasks API > DELETE /tasks/:id > should persist deletion to data file
+ ✓ tests/api/tasks.test.ts > Tasks API > GET /stats > should return task statistics
+ ✓ tests/api/tasks.test.ts > Tasks API > GET /stats > should return zero counts when no tasks exist
+ ✓ tests/api/tasks.test.ts > Tasks API > Integration: Full workflow > should handle complete task lifecycle
+
+ Test Files  1 passed (1)
+      Tests  24 passed (24)
+   Start at  20:19:26
+   Duration  267ms (transform 40ms, setup 5ms, collect 100ms, tests 36ms, environment 0ms, prepare 35ms)
+
+
+> todo-app@0.0.0 test:ui
+> playwright test
+
+
+📊 QA Report updated: /Users/ramyfradwan/Workspace Dev/frontend-cursor-test2/QA_REPORT.md
+
+  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.
