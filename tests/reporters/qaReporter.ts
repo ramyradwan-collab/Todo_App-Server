@@ -81,24 +81,43 @@ class QAReporter implements Reporter {
       report += `- **Pass Rate:** ${passRate}%\n\n`;
       report += `---\n\n`;
       report += `## Frontend E2E Tests\n\n`;
+      report += this.formatFrontendTests();
+      report += `\n---\n\n`;
+      report += `*Report generated automatically after test run*\n`;
     } else {
-      // Merge with existing backend tests
+      // Merge with existing backend tests - extract backend section and replace frontend section
       const backendIndex = existingReport.indexOf('## Backend API Tests');
+      const frontendIndex = existingReport.indexOf('## Frontend E2E Tests');
+      
+      // Extract backend section (from "## Backend API Tests" to "## Frontend E2E Tests" or end)
+      let backendSection = '';
+      if (backendIndex !== -1) {
+        if (frontendIndex !== -1) {
+          backendSection = existingReport.substring(backendIndex, frontendIndex);
+        } else {
+          backendSection = existingReport.substring(backendIndex);
+        }
+      }
+      
+      // Extract summary section
       const summaryMatch = existingReport.match(/## Summary\n\n(.*?)\n---/s);
-      const backendSection = existingReport.substring(backendIndex);
-      const beforeBackend = existingReport.substring(0, backendIndex);
       
       // Update summary with combined totals
-      if (summaryMatch) {
-        const backendTotal = (existingReport.match(/- \*\*Total Tests:\*\* (\d+)/) || [])[1] || '0';
-        const backendPassed = (existingReport.match(/- \*\*Passed:\*\* (\d+)/) || [])[1] || '0';
-        const backendFailed = (existingReport.match(/- \*\*Failed:\*\* (\d+)/) || [])[1] || '0';
-        const backendSkipped = (existingReport.match(/- \*\*Skipped:\*\* (\d+)/) || [])[1] || '0';
+      if (summaryMatch && backendIndex !== -1) {
+        const backendTotalMatch = existingReport.match(/- \*\*Total Tests:\*\* (\d+)/);
+        const backendPassedMatch = existingReport.match(/- \*\*Passed:\*\* (\d+) ✅/);
+        const backendFailedMatch = existingReport.match(/- \*\*Failed:\*\* (\d+) ❌/);
+        const backendSkippedMatch = existingReport.match(/- \*\*Skipped:\*\* (\d+) ⏭️/);
         
-        const combinedTotal = parseInt(backendTotal) + total;
-        const combinedPassed = parseInt(backendPassed) + passed;
-        const combinedFailed = parseInt(backendFailed) + failed;
-        const combinedSkipped = parseInt(backendSkipped) + skipped;
+        const backendTotal = backendTotalMatch ? parseInt(backendTotalMatch[1]) : 0;
+        const backendPassed = backendPassedMatch ? parseInt(backendPassedMatch[1]) : 0;
+        const backendFailed = backendFailedMatch ? parseInt(backendFailedMatch[1]) : 0;
+        const backendSkipped = backendSkippedMatch ? parseInt(backendSkippedMatch[1]) : 0;
+        
+        const combinedTotal = backendTotal + total;
+        const combinedPassed = backendPassed + passed;
+        const combinedFailed = backendFailed + failed;
+        const combinedSkipped = backendSkipped + skipped;
         const combinedPassRate = combinedTotal > 0 ? ((combinedPassed / combinedTotal) * 100).toFixed(1) : '0';
         
         report = `# QA Test Report\n\n`;
@@ -110,44 +129,20 @@ class QAReporter implements Reporter {
         report += `- **Skipped:** ${combinedSkipped} ⏭️\n`;
         report += `- **Pass Rate:** ${combinedPassRate}%\n\n`;
         report += `---\n\n`;
-        report += backendSection.replace('## Backend API Tests', '## Backend API Tests');
+        report += backendSection;
         report += `\n## Frontend E2E Tests\n\n`;
+        report += this.formatFrontendTests();
+        report += `\n---\n\n`;
+        report += `*Report generated automatically after test run*\n`;
       } else {
-        report = beforeBackend + `## Frontend E2E Tests\n\n`;
+        // Fallback: just append frontend section
+        report = existingReport.replace(/## Frontend E2E Tests[\s\S]*?---\n\n\*Report generated/, 
+          `## Frontend E2E Tests\n\n${this.formatFrontendTests()}\n---\n\n*Report generated`);
+        if (!report.includes('## Frontend E2E Tests')) {
+          report = existingReport + `\n## Frontend E2E Tests\n\n${this.formatFrontendTests()}\n---\n\n*Report generated automatically after test run*\n`;
+        }
       }
     }
-
-    report += this.formatFrontendTests();
-    
-    if (!hasBackendTests) {
-      report += `\n---\n\n`;
-      report += `## General Suggestions\n\n`;
-      
-      const allSuggestions: string[] = [];
-      
-      if (failed > 0) {
-        allSuggestions.push('🔴 Review failed tests and fix issues before deployment');
-      }
-      
-      if (this.tests.some(t => t.duration > 10000)) {
-        allSuggestions.push('⏱️ Some tests are taking >10s - consider performance optimization');
-      }
-      
-      if (failed === 0 && passed === total) {
-        allSuggestions.push('✅ All tests passing - ready for deployment');
-      }
-      
-      if (allSuggestions.length === 0) {
-        allSuggestions.push('✅ No critical issues detected');
-      }
-      
-      allSuggestions.forEach(s => {
-        report += `- ${s}\n`;
-      });
-    }
-
-    report += `\n---\n\n`;
-    report += `*Report generated automatically after test run*\n`;
 
     writeFileSync(this.outputFile, report, 'utf-8');
     console.log(`\n📊 QA Report updated: ${this.outputFile}`);
